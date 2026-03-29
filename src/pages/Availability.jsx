@@ -29,25 +29,27 @@ export default function Availability() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/availability')
-      .then((res) => {
-        if (res.data.length === 0) {
-          // Initialize with defaults
-          setAvailability(
-            Array.from({ length: 7 }, (_, i) => ({
-              day_of_week: i,
-              start_time: '09:00',
-              end_time: '17:00',
-              is_active: i >= 1 && i <= 5 ? 1 : 0,
-            }))
-          );
-        } else {
-          setAvailability(res.data);
-          setTimezone(res.data[0]?.timezone || 'UTC');
-        }
-      })
-      .catch(() => setError('Failed to load availability'))
-      .finally(() => setLoading(false));
+    try {
+      const stored = JSON.parse(localStorage.getItem('calendaly_availability') || 'null');
+      if (!stored || !Array.isArray(stored) || stored.length === 0) {
+        // Initialize with defaults
+        const defaultAvailability = Array.from({ length: 7 }, (_, i) => ({
+          day_of_week: i,
+          start_time: '09:00',
+          end_time: '17:00',
+          is_active: i >= 1 && i <= 5 ? 1 : 0,
+        }));
+        setAvailability(defaultAvailability);
+        setTimezone('UTC');
+      } else {
+        setAvailability(stored);
+        setTimezone(stored[0]?.timezone || 'UTC');
+      }
+    } catch {
+      setError('Failed to load availability');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   function updateDay(dayIndex, field, value) {
@@ -56,11 +58,13 @@ export default function Availability() {
     );
   }
 
-  async function handleSave() {
+  function handleSave() {
     setSaving(true);
     setError('');
     try {
-      await api.put('/availability', { availability, timezone });
+      // Save timezone into each day's object for consistency
+      const updated = availability.map(day => ({ ...day, timezone }));
+      localStorage.setItem('calendaly_availability', JSON.stringify(updated));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {

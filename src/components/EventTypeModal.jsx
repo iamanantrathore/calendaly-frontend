@@ -143,6 +143,11 @@ export default function EventTypeModal({ eventType, onSave, onClose }) {
                 required
               />
             </div>
+            {form.slug && (
+              <div className="mt-2 text-xs text-blue-600">
+                Public booking link: <span className="underline">{window.location.origin}/{form.slug}</span>
+              </div>
+            )}
           </div>
 
           <div>

@@ -129,7 +129,34 @@ export default function BookingPage() {
       localStorage.setItem('calendaly_bookings', JSON.stringify(existingBookings));
       localStorage.setItem('calendaly_meetings', JSON.stringify(existingMeetings));
 
-      navigate(`/booking/confirm/${bookingId}`);
+      // Simulate sending confirmation email
+      let templates = null;
+      try {
+        templates = JSON.parse(localStorage.getItem('calendaly_email_templates'));
+      } catch {}
+      const confirmationTemplate = templates?.bookingConfirmation || {
+        subject: 'Booking Confirmed: {event_name}',
+        body: `Hi {invitee_name},\n\nYour booking for "{event_name}" has been confirmed!\n\n📅 Date: {date}\n🕐 Time: {time}\n\nBest regards,\nCalendaly Team`
+      };
+      const emailSubject = confirmationTemplate.subject
+        .replace('{event_name}', booking.event_type_name);
+      const emailBody = confirmationTemplate.body
+        .replace('{invitee_name}', booking.invitee_name)
+        .replace('{event_name}', booking.event_type_name)
+        .replace('{date}', format(startTime, 'EEEE, MMMM d, yyyy'))
+        .replace('{time}', format(startTime, 'h:mm a'));
+
+      const sentEmails = JSON.parse(localStorage.getItem('calendaly_sent_emails') || '[]');
+      sentEmails.push({
+        to: booking.invitee_email,
+        subject: emailSubject,
+        body: emailBody,
+        sentAt: new Date().toISOString(),
+        bookingId
+      });
+      localStorage.setItem('calendaly_sent_emails', JSON.stringify(sentEmails));
+
+      navigate(`/booking/confirm/${bookingId}?emailSent=1`);
     } catch (err) {
       setSubmitError('Failed to book. Please try again.');
     } finally {

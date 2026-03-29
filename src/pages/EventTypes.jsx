@@ -87,7 +87,7 @@ export default function EventTypes() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Event Types</h1>
-          <p className="text-gray-500 mt-1">Create and manage your meeting types</p>
+          <p className="text-gray-500 mt-1">Create and manage your meeting types. Each event type has a unique public booking link.</p>
         </div>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2">
           <Plus size={16} />
@@ -97,23 +97,43 @@ export default function EventTypes() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="card p-5 h-48 animate-pulse">
-              <div className="h-1 bg-gray-200 rounded mb-4" />
-              <div className="h-5 bg-gray-200 rounded w-2/3 mb-2" />
-              <div className="h-4 bg-gray-100 rounded w-full mb-1" />
-              <div className="h-4 bg-gray-100 rounded w-3/4" />
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {error}
             </div>
-          ))}
-        </div>
-      ) : eventTypes.length === 0 ? (
-        <div className="text-center py-16 card">
+          )}
+
+          {/* Event Types List */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {eventTypes.map((et) => (
+              <div key={et.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div className="w-full h-1 rounded-full mb-4" style={{ backgroundColor: et.color || '#0069ff' }} />
+                <h3 className="font-semibold text-gray-900 text-lg mb-2">{et.name}</h3>
+                {et.description && (
+                  <p className="text-sm text-gray-500 mb-3 line-clamp-2">{et.description}</p>
+                )}
+                <div className="flex items-center gap-1 mb-2 text-sm text-gray-600">
+                  <Clock size={14} />
+                  <span>{et.duration} minutes</span>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-gray-500">Public link:</span>
+                  <a
+                    href={`/${et.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 underline break-all"
+                  >
+                    {window.location.origin}/{et.slug}
+                  </a>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={() => openEdit(et)} className="btn-secondary text-xs">Edit</button>
+                  <button onClick={() => handleDelete(et)} className="btn-danger text-xs">Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
           <Zap size={48} className="mx-auto text-gray-300 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-1">No event types yet</h3>
           <p className="text-gray-500 mb-6">Create your first event type to get started</p>

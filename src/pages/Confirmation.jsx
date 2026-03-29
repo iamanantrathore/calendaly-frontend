@@ -20,18 +20,21 @@ function buildGoogleCalendarUrl(booking) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+import { useLocation } from 'react-router-dom';
+
 export default function Confirmation() {
   const { bookingId } = useParams();
+  const location = useLocation();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     function fetchBooking() {
       try {
         const meetings = JSON.parse(localStorage.getItem('calendaly_meetings') || '[]');
         const foundBooking = meetings.find(m => m.id == bookingId);
-        
         if (foundBooking) {
           setBooking(foundBooking);
         } else {
@@ -44,7 +47,11 @@ export default function Confirmation() {
       }
     }
     fetchBooking();
-  }, [bookingId]);
+    // Check if email was just sent
+    if (location.search.includes('emailSent=1')) {
+      setEmailSent(true);
+    }
+  }, [bookingId, location.search]);
 
   if (loading) {
     return (
@@ -81,6 +88,9 @@ export default function Confirmation() {
           <p className="text-gray-500 mt-1">
             A confirmation has been sent to <strong>{booking.invitee_email}</strong>
           </p>
+          {emailSent && (
+            <div className="mt-2 text-green-600 text-sm font-medium">Confirmation email sent!</div>
+          )}
         </div>
 
         {/* Booking details card */}
