@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Clock, Calendar, Zap } from 'lucide-react';
 
@@ -66,13 +67,13 @@ export default function PublicEventTypes() {
                 <Clock size={14} />
                 <span>{et.duration} minutes</span>
               </div>
-              <a
-                href={`/${et.slug}`}
+              <Link
+                to={`/${et.slug}`}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
               >
                 <Calendar size={16} />
                 Book Now
-              </a>
+              </Link>
             </div>
           ))}
         </div>
