@@ -52,10 +52,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Zap size={16} className="text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">Scheduly</span>
+              <img src="/favicon.ico" alt="Calendaly" className="w-8 h-8" />
+              <span className="text-xl font-bold text-gray-900">Calendaly</span>
             </div>
             <div className="flex items-center gap-4">
               <button
@@ -163,7 +161,7 @@ export default function LandingPage() {
             Ready to get started?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join thousands of professionals who use Scheduly to schedule better.
+            Join thousands of professionals who use Calendaly to schedule better.
           </p>
           <button
             onClick={() => navigate('/book')}
@@ -179,13 +177,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Zap size={16} className="text-white" />
-              </div>
-              <span className="text-xl font-bold">Scheduly</span>
+              <img src="/favicon.ico" alt="Calendaly" className="w-8 h-8" />
+              <span className="text-xl font-bold">Calendaly</span>
             </div>
             <div className="text-gray-400 text-sm">
-              © 2026 Scheduly. All rights reserved.
+              © 2026 Calendaly. All rights reserved.
             </div>
           </div>
         </div>

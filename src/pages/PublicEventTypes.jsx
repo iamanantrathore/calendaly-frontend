@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { Clock, Calendar, Zap } from 'lucide-react';
+import { Clock, Calendar } from 'lucide-react';
 
 export default function PublicEventTypes() {
   const [eventTypes, setEventTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  async function fetchEventTypes() {
+  function fetchEventTypes() {
     try {
-      const res = await axios.get('/api/event-types');
-      setEventTypes(res.data);
+      const data = JSON.parse(localStorage.getItem('calendaly_event_types') || '[]');
+      setEventTypes(data);
     } catch {
       setError('Failed to load event types');
     } finally {
@@ -44,10 +43,8 @@ export default function PublicEventTypes() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Zap size={24} className="text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">Scheduly</h1>
+            <img src="/favicon.ico" alt="Calendaly" className="w-12 h-12" />
+            <h1 className="text-3xl font-bold text-gray-900">Calendaly</h1>
           </div>
           <p className="text-lg text-gray-600">Book a meeting with us</p>
         </div>

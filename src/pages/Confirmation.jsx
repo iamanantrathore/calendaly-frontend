@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { format, parseISO } from 'date-fns';
 import { CheckCircle, Calendar, Clock, Mail, User, ExternalLink } from 'lucide-react';
 
@@ -28,16 +27,18 @@ export default function Confirmation() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    async function fetchBooking() {
+    function fetchBooking() {
       try {
-        const res = await axios.get(`/api/meetings/${bookingId}`);
-        setBooking(res.data);
-      } catch (err) {
-        if (err.response?.status === 404) {
-          setError('Booking not found');
+        const meetings = JSON.parse(localStorage.getItem('calendaly_meetings') || '[]');
+        const foundBooking = meetings.find(m => m.id == bookingId);
+        
+        if (foundBooking) {
+          setBooking(foundBooking);
         } else {
-          setError('Failed to load booking details');
+          setError('Booking not found');
         }
+      } catch (err) {
+        setError('Failed to load booking details');
       } finally {
         setLoading(false);
       }

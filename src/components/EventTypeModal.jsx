@@ -132,7 +132,7 @@ export default function EventTypeModal({ eventType, onSave, onClose }) {
             </label>
             <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
               <span className="px-3 py-2 bg-gray-50 text-gray-400 text-sm border-r border-gray-300">
-                scheduly.com/
+                calendaly.com/
               </span>
               <input
                 type="text"

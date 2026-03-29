@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { CalendarDays } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import MeetingCard from '../components/MeetingCard';
@@ -14,12 +13,44 @@ export default function Meetings() {
   const [editTime, setEditTime] = useState('');
   const [editNotes, setEditNotes] = useState('');
 
-  async function fetchMeetings(type) {
+  // Utility functions for localStorage
+  const getStoredMeetings = () => {
+    try {
+      const data = localStorage.getItem('calendaly_meetings');
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const setStoredMeetings = (data) => {
+    try {
+      localStorage.setItem('calendaly_meetings', JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to store meetings:', error);
+    }
+  };
+
+  function fetchMeetings(type) {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`/api/meetings?type=${type}`);
-      setMeetings(res.data);
+      const allMeetings = getStoredMeetings();
+      const now = new Date();
+      
+      let filteredMeetings;
+      if (type === 'upcoming') {
+        filteredMeetings = allMeetings.filter(meeting => new Date(meeting.start_time) > now);
+      } else if (type === 'past') {
+        filteredMeetings = allMeetings.filter(meeting => new Date(meeting.start_time) <= now);
+      } else {
+        filteredMeetings = allMeetings;
+      }
+      
+      // Sort by start time
+      filteredMeetings.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+      
+      setMeetings(filteredMeetings);
     } catch {
       setError('Failed to load meetings');
     } finally {
@@ -31,14 +62,13 @@ export default function Meetings() {
     fetchMeetings(tab);
   }, [tab]);
 
-  async function handleCancel(meeting) {
+  function handleCancel(meeting) {
     if (!window.confirm(`Delete meeting with ${meeting.invitee_name}?`)) return;
-    try {
-      await axios.delete(`/api/meetings/${meeting.id}`);
-      fetchMeetings(tab);
-    } catch {
-      setError('Failed to cancel meeting');
-    }
+    
+    const allMeetings = getStoredMeetings();
+    const filtered = allMeetings.filter(m => m.id !== meeting.id);
+    setStoredMeetings(filtered);
+    fetchMeetings(tab);
   }
 
   function openEditModal(meeting) {

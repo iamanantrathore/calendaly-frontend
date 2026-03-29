@@ -35,10 +35,8 @@ export default function Layout() {
         {/* Logo */}
         <div className="px-6 py-5 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Zap size={16} className="text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">Scheduly</span>
+            <img src="/favicon.ico" alt="Calendaly" className="w-8 h-8" />
+            <span className="text-xl font-bold text-gray-900">Calendaly</span>
           </div>
         </div>
 
@@ -59,7 +57,7 @@ export default function Layout() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-900">Admin User</p>
-              <p className="text-xs text-gray-500">admin@scheduly.com</p>
+              <p className="text-xs text-gray-500">admin@calendaly.com</p>
             </div>
           </div>
           <button

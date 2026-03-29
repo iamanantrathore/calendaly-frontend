@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check if user is logged in (simple check for demo)
-    const loggedIn = localStorage.getItem('scheduly_auth') === 'true';
+    const loggedIn = localStorage.getItem('calendaly_auth') === 'true';
     setIsAuthenticated(loggedIn);
     setLoading(false);
   }, []);
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   const login = (password) => {
     // Simple password check for demo
     if (password === 'admin123') {
-      localStorage.setItem('scheduly_auth', 'true');
+      localStorage.setItem('calendaly_auth', 'true');
       setIsAuthenticated(true);
       return true;
     }
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('scheduly_auth');
+    localStorage.removeItem('calendaly_auth');
     setIsAuthenticated(false);
   };
 

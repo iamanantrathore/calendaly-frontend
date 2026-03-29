@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Plus, Zap } from 'lucide-react';
 import EventTypeCard from '../components/EventTypeCard';
 import EventTypeModal from '../components/EventTypeModal';
@@ -11,10 +10,28 @@ export default function EventTypes() {
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState('');
 
-  async function fetchEventTypes() {
+  // Utility functions for localStorage
+  const getStoredEventTypes = () => {
     try {
-      const res = await axios.get('/api/event-types');
-      setEventTypes(res.data);
+      const data = localStorage.getItem('calendaly_event_types');
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const setStoredEventTypes = (data) => {
+    try {
+      localStorage.setItem('calendaly_event_types', JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to store event types:', error);
+    }
+  };
+
+  function fetchEventTypes() {
+    try {
+      const data = getStoredEventTypes();
+      setEventTypes(data);
     } catch {
       setError('Failed to load event types');
     } finally {
@@ -36,19 +53,31 @@ export default function EventTypes() {
     setModalOpen(true);
   }
 
-  async function handleSave(form) {
+  function handleSave(form) {
+    const currentTypes = getStoredEventTypes();
+    
     if (editing) {
-      await axios.put(`/api/event-types/${editing.id}`, form);
+      // Update existing
+      const updated = currentTypes.map(et => 
+        et.id === editing.id ? { ...form, id: editing.id } : et
+      );
+      setStoredEventTypes(updated);
     } else {
-      await axios.post('/api/event-types', form);
+      // Create new
+      const newType = { ...form, id: Date.now() };
+      setStoredEventTypes([...currentTypes, newType]);
     }
+    
     setModalOpen(false);
     fetchEventTypes();
   }
 
   async function handleDelete(et) {
     if (!window.confirm(`Delete "${et.name}"? This cannot be undone.`)) return;
-    await axios.delete(`/api/event-types/${et.id}`);
+    
+    const currentTypes = getStoredEventTypes();
+    const filtered = currentTypes.filter(type => type.id !== et.id);
+    setStoredEventTypes(filtered);
     fetchEventTypes();
   }
 

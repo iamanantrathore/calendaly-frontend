@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import api from '../api';
 import { Calendar, Clock, Users, TrendingUp, Zap } from 'lucide-react';
 
 export default function Dashboard() {
@@ -11,26 +10,50 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
 
+  // Utility functions for localStorage data management
+  const getStoredData = (key) => {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const setStoredData = (key, data) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to store data:', error);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
   }, []);
 
-  async function fetchStats() {
+  function fetchStats() {
     try {
-      const [eventTypesRes, bookingsRes, meetingsRes] = await Promise.all([
-        api.get('/api/event-types'),
-        api.get('/api/bookings'),
-        api.get('/api/meetings')
-      ]);
+      // Get data from localStorage
+      const eventTypes = getStoredData('calendaly_event_types');
+      const bookings = getStoredData('calendaly_bookings');
+      const meetings = getStoredData('calendaly_meetings');
 
+      // Filter upcoming meetings
       const now = new Date();
-      const upcoming = meetingsRes.data.filter(meeting => new Date(meeting.start_time) > now);
+      const upcoming = meetings.filter(meeting => {
+        try {
+          return new Date(meeting.start_time) > now;
+        } catch {
+          return false;
+        }
+      });
 
       setStats({
-        totalEventTypes: eventTypesRes.data.length,
-        totalBookings: bookingsRes.data.length,
+        totalEventTypes: eventTypes.length,
+        totalBookings: bookings.length,
         upcomingMeetings: upcoming.length,
-        totalMeetings: meetingsRes.data.length
+        totalMeetings: meetings.length
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);

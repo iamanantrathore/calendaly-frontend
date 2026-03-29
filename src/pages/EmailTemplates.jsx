@@ -17,7 +17,7 @@ Your booking for "{event_name}" has been confirmed!
 We'll send you a reminder 24 hours before the meeting.
 
 Best regards,
-Scheduly Team`
+Calendaly Team`
     },
     bookingCancellation: {
       subject: 'Booking Cancelled: {event_name}',
@@ -28,7 +28,7 @@ Your booking for "{event_name}" on {date} at {time} has been cancelled.
 If you need to reschedule, please book a new time.
 
 Best regards,
-Scheduly Team`
+Calendaly Team`
     },
     reminder: {
       subject: 'Reminder: {event_name} tomorrow',
@@ -43,7 +43,7 @@ This is a reminder for your upcoming meeting "{event_name}".
 See you then!
 
 Best regards,
-Scheduly Team`
+Calendaly Team`
     }
   });
 

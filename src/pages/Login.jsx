@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Zap, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 export default function Login() {
   const [password, setPassword] = useState('');
@@ -29,10 +29,8 @@ export default function Login() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Zap size={24} className="text-white" />
-            </div>
-            <span className="text-2xl font-bold text-gray-900">Scheduly</span>
+            <img src="/favicon.ico" alt="Calendaly" className="w-12 h-12" />
+            <span className="text-2xl font-bold text-gray-900">Calendaly</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Admin Login</h2>
           <p className="text-gray-600 mt-2">Enter your password to access the admin panel</p>

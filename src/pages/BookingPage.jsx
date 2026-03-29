@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { Clock, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import Calendar from '../components/Calendar';
@@ -30,30 +29,60 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      axios.get(`/api/event-types/slug/${slug}`),
-      axios.get('/api/availability'),
-    ])
-      .then(([etRes, availRes]) => {
-        setEventType(etRes.data);
-        setAvailability(availRes.data);
-        setTimezone(availRes.data[0]?.timezone || 'UTC');
-      })
-      .catch(() => setNotFound(true))
-      .finally(() => setLoadingEvent(false));
+    // Fetch event type from localStorage
+    try {
+      const eventTypes = JSON.parse(localStorage.getItem('calendaly_event_types') || '[]');
+      const foundEventType = eventTypes.find(et => et.slug === slug);
+      
+      if (foundEventType) {
+        setEventType(foundEventType);
+        // Mock availability data
+        setAvailability([
+          { day_of_week: 1, is_active: true, start_time: '09:00', end_time: '17:00', timezone: 'UTC' },
+          { day_of_week: 2, is_active: true, start_time: '09:00', end_time: '17:00', timezone: 'UTC' },
+          { day_of_week: 3, is_active: true, start_time: '09:00', end_time: '17:00', timezone: 'UTC' },
+          { day_of_week: 4, is_active: true, start_time: '09:00', end_time: '17:00', timezone: 'UTC' },
+          { day_of_week: 5, is_active: true, start_time: '09:00', end_time: '17:00', timezone: 'UTC' },
+        ]);
+        setTimezone('UTC');
+      } else {
+        setNotFound(true);
+      }
+    } catch (error) {
+      setNotFound(true);
+    } finally {
+      setLoadingEvent(false);
+    }
   }, [slug]);
 
   useEffect(() => {
     if (!selectedDate || !eventType) return;
     setLoadingSlots(true);
     setSelectedSlot(null);
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    axios
-      .get(`/api/booking/${slug}/slots?date=${dateStr}`)
-      .then((res) => setSlots(res.data.slots))
-      .catch(() => setSlots([]))
-      .finally(() => setLoadingSlots(false));
-  }, [selectedDate, eventType, slug]);
+    
+    // Generate available slots based on availability
+    const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const dayAvailability = availability.find(a => a.day_of_week === dayOfWeek && a.is_active);
+    
+    if (dayAvailability) {
+      const slots = [];
+      const startTime = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${dayAvailability.start_time}`);
+      const endTime = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${dayAvailability.end_time}`);
+      const duration = (eventType.duration || 30) * 60 * 1000; // Convert to milliseconds
+      
+      let currentTime = new Date(startTime);
+      while (currentTime.getTime() + duration <= endTime.getTime()) {
+        slots.push(format(currentTime, 'HH:mm'));
+        currentTime = new Date(currentTime.getTime() + duration);
+      }
+      
+      setSlots(slots);
+    } else {
+      setSlots([]);
+    }
+    
+    setLoadingSlots(false);
+  }, [selectedDate, eventType, availability]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -70,17 +99,39 @@ export default function BookingPage() {
         answer: customAnswers[q] || '',
       }));
 
-      const res = await axios.post(`/api/booking/${slug}`, {
+      // Create booking/meeting object
+      const bookingId = Date.now();
+      const startTime = new Date(`${dateStr}T${selectedSlot}`);
+      const endTime = new Date(startTime.getTime() + (eventType.duration || 30) * 60000);
+      
+      const booking = {
+        id: bookingId,
+        event_type_id: eventType.id,
+        event_type_name: eventType.name,
         invitee_name: form.name,
         invitee_email: form.email,
-        date: dateStr,
-        time: selectedSlot,
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        duration: eventType.duration || 30,
         notes: form.notes,
         custom_answers,
-      });
-      navigate(`/booking/confirm/${res.data.id}`);
+        status: 'confirmed',
+        created_at: new Date().toISOString()
+      };
+
+      // Store in localStorage
+      const existingBookings = JSON.parse(localStorage.getItem('calendaly_bookings') || '[]');
+      const existingMeetings = JSON.parse(localStorage.getItem('calendaly_meetings') || '[]');
+      
+      existingBookings.push(booking);
+      existingMeetings.push(booking);
+      
+      localStorage.setItem('calendaly_bookings', JSON.stringify(existingBookings));
+      localStorage.setItem('calendaly_meetings', JSON.stringify(existingMeetings));
+
+      navigate(`/booking/confirm/${bookingId}`);
     } catch (err) {
-      setSubmitError(err.response?.data?.error || 'Failed to book. Please try again.');
+      setSubmitError('Failed to book. Please try again.');
     } finally {
       setSubmitting(false);
     }
