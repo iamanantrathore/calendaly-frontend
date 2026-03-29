@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Zap } from 'lucide-react';
+import { Plus, Zap, Clock } from 'lucide-react';
 import EventTypeCard from '../components/EventTypeCard';
 import EventTypeModal from '../components/EventTypeModal';
 
@@ -55,10 +55,10 @@ export default function EventTypes() {
 
   function handleSave(form) {
     const currentTypes = getStoredEventTypes();
-    
+
     if (editing) {
       // Update existing
-      const updated = currentTypes.map(et => 
+      const updated = currentTypes.map(et =>
         et.id === editing.id ? { ...form, id: editing.id } : et
       );
       setStoredEventTypes(updated);
@@ -67,14 +67,14 @@ export default function EventTypes() {
       const newType = { ...form, id: Date.now() };
       setStoredEventTypes([...currentTypes, newType]);
     }
-    
+
     setModalOpen(false);
     fetchEventTypes();
   }
 
   async function handleDelete(et) {
     if (!window.confirm(`Delete "${et.name}"? This cannot be undone.`)) return;
-    
+
     const currentTypes = getStoredEventTypes();
     const filtered = currentTypes.filter(type => type.id !== et.id);
     setStoredEventTypes(filtered);
@@ -87,7 +87,9 @@ export default function EventTypes() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Event Types</h1>
-          <p className="text-gray-500 mt-1">Create and manage your meeting types. Each event type has a unique public booking link.</p>
+          <p className="text-gray-500 mt-1">
+            Create and manage your meeting types. Each event type has a unique public booking link.
+          </p>
         </div>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2">
           <Plus size={16} />
@@ -95,58 +97,71 @@ export default function EventTypes() {
         </button>
       </div>
 
+      {/* Error */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
+          {error}
+        </div>
+      )}
 
+      {/* Event Types List */}
+      {eventTypes.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Zap size={48} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-1">No event types yet</h3>
+          <p className="text-gray-500 mb-6">Create your first event type to get started</p>
+          <button onClick={openCreate} className="btn-primary">
+            Create Event Type
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {eventTypes.map((et) => (
+            <div
+              key={et.id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+            >
+              <div
+                className="w-full h-1 rounded-full mb-4"
+                style={{ backgroundColor: et.color || '#0069ff' }}
+              />
+              <h3 className="font-semibold text-gray-900 text-lg mb-2">{et.name}</h3>
 
-          {/* Event Types List */}
-          {eventTypes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Zap size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">No event types yet</h3>
-              <p className="text-gray-500 mb-6">Create your first event type to get started</p>
-              <button onClick={openCreate} className="btn-primary">
-                Create Event Type
-              </button>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {eventTypes.map((et) => (
-                <div key={et.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                  <div className="w-full h-1 rounded-full mb-4" style={{ backgroundColor: et.color || '#0069ff' }} />
-                  <h3 className="font-semibold text-gray-900 text-lg mb-2">{et.name}</h3>
-                  {et.description && (
-                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{et.description}</p>
-                  )}
-                  <div className="flex items-center gap-1 mb-2 text-sm text-gray-600">
-                    <Clock size={14} />
-                    <span>{et.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Public link:</span>
-                    <a
-                      href={`/${et.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 underline break-all"
-                    >
-                      {window.location.origin}/{et.slug}
-                    </a>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <button onClick={() => openEdit(et)} className="btn-secondary text-xs">Edit</button>
-                    <button onClick={() => handleDelete(et)} className="btn-danger text-xs">Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+              {et.description && (
+                <p className="text-sm text-gray-500 mb-3 line-clamp-2">{et.description}</p>
+              )}
 
+              <div className="flex items-center gap-1 mb-2 text-sm text-gray-600">
+                <Clock size={14} />
+                <span>{et.duration} minutes</span>
+              </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs text-gray-500">Public link:</span>
+                <a
+                  href={`/${et.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 underline break-all"
+                >
+                  {window.location.origin}/{et.slug}
+                </a>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => openEdit(et)} className="btn-secondary text-xs">
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(et)} className="btn-danger text-xs">
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
       {modalOpen && (
         <EventTypeModal
           eventType={editing}
