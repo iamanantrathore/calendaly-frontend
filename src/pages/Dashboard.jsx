@@ -18,9 +18,9 @@ export default function Dashboard() {
   async function fetchStats() {
     try {
       const [eventTypesRes, bookingsRes, meetingsRes] = await Promise.all([
-        api.get('/event-types'),
-        api.get('/bookings'),
-        api.get('/meetings')
+        api.get('/api/event-types'),
+        api.get('/api/bookings'),
+        api.get('/api/meetings')
       ]);
 
       const now = new Date();
